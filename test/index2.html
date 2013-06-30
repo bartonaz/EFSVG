@@ -1,0 +1,68 @@
+<html>
+    <head>
+        <title>FESVG Test</title>
+        <style type="text/css"> 
+
+            #svgContainer {
+                width: 711px;
+                height: 400px;
+                border: 1px solid #aaa;
+            }
+        </style>
+    </head>
+    <body>
+
+    <svg id="svg" xmlns="http://www.w3.org/2000/svg" version="1.1" width="200" height="200">
+        <!-- HTML created circle -->
+        <circle id="c0" cx="50" cy="50" r="20" stroke="#464646" stroke-width="2" fill="#cbcbcb" />     
+    </svg>
+    <script>
+      
+        var c0 = document.getElementById("c0");
+        var node0 = c0.getAttributeNode("r");
+        
+        // prop1: DOM attribute
+        Object.defineProperty(c0, "prop1", {
+          get: function() {
+            return this.getAttribute("r");
+          },
+          set: function(v) {
+            this.setAttribute("r", v);
+          }
+        });
+        
+        // prop2: JS property
+        Object.defineProperty(c0, "prop2", {
+          get: function() {
+            return this.r.baseVal.value;
+          },
+          set: function(v) {
+            this.r.baseVal.value = v;
+          }
+        });
+        
+        // prop3: Attribute node value
+        Object.defineProperty(c0, "prop3", {
+          get: function() {
+            return node0.value;
+          },
+          set: function(v) {
+            node0.value = v;
+          }
+        });
+        
+        // prop4: Attribute node nodeValue
+        Object.defineProperty(c0, "prop4", {
+          get: function() {
+            return node0.nodeValue;
+          },
+          set: function(v) {
+            node0.nodeValue = v;
+          }
+        });
+
+        c0.setAttribute("r", 20);
+    </script>
+
+    </body>
+</html>
