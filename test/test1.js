@@ -1,6 +1,6 @@
-E.log = true;
+EF.log = true;
 var svg = document.getElementById("svg");
-var c1 = E.el("ellipse");
+var c1 = EF.el("ellipse");
 
 var c0 = document.getElementById("c0");
 
@@ -36,3 +36,7 @@ Object.defineProperty(c0, "Val2",{
 
 // c0.setAttribute("stroke-dashoffset","9993px");
 // c0.setAttribute("stroke-dasharray","9999px");
+
+// console.log(Object.keys(c1))
+
+svg.appendChild(c1);

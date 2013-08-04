@@ -1,4 +1,4 @@
-var E = function(doc){
+var EF = function(doc){
 
 	// Main public object
 	var e = {
@@ -10,35 +10,45 @@ var E = function(doc){
 		log: true
 	};
 
-	/////////////////
-	// PUBLIC METHODS
-	/////////////////
-	e.el = function(input) {
-		console.log(typeof input);
-		// Managing simple initializer with type
-		if (typeof input === "string") {
-			input = input.toLowerCase();
-			var el = createDOMel(input);
-			if(!isTypeEcorrect(input)) return;
-			var props = {};
-			props["EFtype"] = input;
-			setPropsE(el,props);		// Sets all default properties + specified type
-			setSVGAccessors(el);
-			return el;
-		} else if(typeof input === "object") {
-			// Creating the simple obkect first if the object passed to initializer
-			var props = input;
-			if(!isTypeEcorrect(props["EFtype"])) return;
-			var el = e.el(props["EFtype"]);
-			// delete props.type;
-			setPropsE(el,props);
+//------------------------------------------------------------------------------------------------------------------------------
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// PUBLIC METHODS //////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//------------------------------------------------------------------------------------------------------------------------------
+	// Creates an EF element using type or object of properties as input	
+	var el = function(input) {
+		// Setting type and properties of the object that will be created
+		var type = "";
+		var props = {};
+		if (typeof input === "string") {	// Getting type if only type was provided to initializer
+			type = input.toLowerCase();
+			tag = type;
+			props["EFtype"] = type;
+			props["EFtag"] = tag;
+		} else if(typeof input === "object") {		// Getting type from the input object and setting additional provided properties
+			// Creating the simple object first if the object passed to initializer
+			props = input;
+			type = props["EFtype"];
+			tag = props["EFtag"];
+		} else {
+			if(e.log) console.warn("Wrong input in el(): '"+input+"'");
+			return;
 		}
-		if(e.log) console.log("Wrong input in el(): '"+input+"'");
+		if(!isTypeEFcorrect(type)) return;
+		var el = createDOMel(tag);		// Create DOM instance of the object with the specified type
+		setPropsEF(el,props);			// Set all default properties + specified type
+		el = updatedSVGtype(el);		// Updates the SVG type of the object based on its EF object properties
+		setSVGAttributes(el);			// Set all attributes for the SVG element based on its EF properties
+		setEFAccessor(el);				// Set accessor methods for all EF properties
+		return el;		
 	};
 
+//------------------------------------------------------------------------------------------------------------------------------
 	// Returns the id of SVG type (from typeSVG) of the element based on its type and properties
-	e.tagId = function(el) {
-		var tagNames = typeSVG;
+	var tagId = function(el) {
+		var tagNames = typesSVG;
 		var tagId = -1;
 		if(!el.hasOwnProperty("EFtype")) {
 			if(e.log) console.warn("Object has no <type> property assigned. Is it EFSVG object?");
@@ -56,41 +66,49 @@ var E = function(doc){
 				break;
 		}
 		if(tagId>=0) return tagId;
-		if(e.log) console.log("Failed to identify SVG type <tagName> for object: "+el.toString() + " of type: "+el["EFtype"]);
+		if(e.log) console.warn("Failed to identify SVG type <tagName> for object: "+el.toString() + " of type: "+el["EFtype"]);
 	}
 
+//------------------------------------------------------------------------------------------------------------------------------
 	// Returns name of SVG type of the element based on its type and properties
-	e.tagName = function(el) {
-		var tagId = e.tagId(el);
-		if(tagId<0 || tagId>typeSVG.length) {
-			if(e.log) console.warn("Wrong tagId in <tagName> function: "+tagId+" for object of type: "+el["EFtype"]);
+	var tagName = function(el) {
+		var tagId_ = tagId(el);
+		if(tagId_<0 || tagId_>typesSVG.length) {
+			if(e.log) console.warn("Wrong tagId in <tagName> function: "+tagId_+" for object of type: "+el["EFtype"]);
 			return null;
 		}
-		return typeSVG[tagId];
+		return typesSVG[tagId_];
 	}
 
-	//////////////////
-	// PRIVATE METHODS
-	//////////////////
+//------------------------------------------------------------------------------------------------------------------------------
 
 
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// PRIVATE METHODS  /////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//------------------------------------------------------------------------------------------------------------------------------
 	// All possible types of the E element
-	var typesE = ["rect","ellipse","line"];
+	var typesEF = ["rect","ellipse","line"];
 
+//------------------------------------------------------------------------------------------------------------------------------
 	// All possible types of the SVG element
-	var typeSVG = ["line","path","rect","ellipse","circle","text","textPath","image","linearGradient","radialGradient"];
+	var typesSVG = ["line","path","rect","ellipse","circle","text","textPath","image","linearGradient","radialGradient"];
 
+//------------------------------------------------------------------------------------------------------------------------------
 	// Checks whether the type is available
-	var isTypeEcorrect = function(type){
-		if(typesE.indexOf(type) !== -1) return true;
+	var isTypeEFcorrect = function(type){
+		if(typesEF.indexOf(type) !== -1) return true;
 		if(e.log) console.warn("Wrong type of the EF element: '"+type+"'");
 		return false;
 	};
 
+//------------------------------------------------------------------------------------------------------------------------------
 	// All possible properties of the E element (with default values)
-	var propsE = {
+	var propsEF = {
 		// Geometry
 		"EFtype":"rect",						// Type of the element
+		"EFtag":"rect",							// Tag of SVG element that should be used
 		"EFx":10,								// Array of X coordinates of each point (default: single value)
 		"EFy":0,								// Array of Y coordinates of each point (default: single value)
 		"EFfactor":1,							// Factor of attraction of each point (1-straight lines, <1-arcs)
@@ -103,6 +121,7 @@ var E = function(doc){
 		"EFtoProgress":0						// Progress of the shape transformation
 	};
 
+//------------------------------------------------------------------------------------------------------------------------------
 	// Availability of all properties for the SVG element [Order as in propsSVG array]
 	var attrAvailSVG = [
 		[0,0,0,0,0,0,0,0,0, 1,1,1,1,0,0,0, 1,0, 1,1,1,1,1,1,0,0, 1,1],			// LINE
@@ -115,6 +134,7 @@ var E = function(doc){
 		[0,0,0,0,0,1,1,1,1, 0,0,0,0,0,0,0, 1,1, 0,0,0,0,0,0,0,0, 1,1]			// IMAGE
 	];
 
+//------------------------------------------------------------------------------------------------------------------------------
 	// All possible properties of the SVG element
 	var attrSVG = [
 	// Geometry (Areas)
@@ -152,26 +172,27 @@ var E = function(doc){
 	"filter"
 	];
 
+//------------------------------------------------------------------------------------------------------------------------------
 	// Creates true SVG element in the DOM
 	var createDOMel = function(name) {
+		if(e.log) console.log("Creating a DOM element of type: "+name);
 		var el = doc.createElementNS(this.ns, name);
 		return el;
 	};
 
-	// Sets all properties of the E element
-	var setPropsE = function(el,props) {
+//------------------------------------------------------------------------------------------------------------------------------
+	// Sets all properties of the EF element
+	var setPropsEF = function(el,props) {
 		// Adding all properties if they haven't been added yet
-		if(!el.hasOwnProperty(propsE[0])) {
+		if(!el.hasOwnProperty(propsEF[0])) {
 			// Setting properties
-			for(key in propsE){
-				el[key] = propsE[key];
+			for(key in propsEF){
+				el[key] = propsEF[key];
 			}
-			// Setting all SVG attributes of the object of given <type>
-
 		}
 		// Setting proper values to the specified properties
 		for(key in props) {
-			if(!propsE.hasOwnProperty(key)) {		// Skipping incompatinle properties
+			if(!propsEF.hasOwnProperty(key)) {		// Skipping incompatinle properties
 				if(e.log) console.warn("Wrong property name '"+key+"' for object of type '"+el["EFtype"]+"'");
 				continue;
 			}
@@ -180,30 +201,71 @@ var E = function(doc){
 		}
 	};
 
-	// Sets all attributes of the object depending on its <type> property
-	var setAttrSVG = function(el) {
-		if(!el.hasOwnProperty["EFtype"]) {
-			if(e.log) console.warn("Trying to set SVG attributes to the object of undefined type: "+el.toString());
+//------------------------------------------------------------------------------------------------------------------------------
+
+	// Creates object with properties of the EF object
+	var getPropsEF = function(el) {
+		var props = propsEF;
+		for(key in props) {
+			props[key] = el[key];
 		}
-		var type = el["EFtype"];
+		return props;
+	}
+//------------------------------------------------------------------------------------------------------------------------------
+	// Replaces the object by a new one with correct tagName if needed (tagName differs from EFtag)
+	var updatedSVGtype = function(el) {
+		if(!el.hasOwnProperty("EFtype")) {
+			if(e.log) console.warn("Trying to update SVG type of the object of undefined type: "+el.toString());
+		}
+		var tagName_0 = el["tagName"];
+		var tagName_1 = tagName(el);
+		if(tagName_0 === tagName_1) return el;
+		// Replacing the SVG element by the new one with the same visual representation
+		if(e.log) console.log("Tag of object with type: "+el["EFtype"]+" has to be changed from <"+tagName_0+"> to <"+tagName_1+">");
+		var props = getPropsEF(el);
+		props["EFtag"] = tagName_1;
+		var newEl = e.el(props);
+		return newEl;
 	}
 
-	// Sets all accessors to the attributes of the SVG element
-	var setSVGAccessors = function(el) {
+//------------------------------------------------------------------------------------------------------------------------------
+	// Sets all accessors to the properties of the EF element
+	var setEFAccessor = function(el, prop) {
+		if(e.log) console.log("Setting accessor <"+prop+"> to the EF object with type: <"+el["EFtype"]+">");
 
 	};
 
+//------------------------------------------------------------------------------------------------------------------------------
 	// Sets all SVG attributes to the object of given <type>
 	var setSVGAttributes = function(el) {
-		var typeId = typesE.indexOf(el["tagName"]);
+		var typeId = typesSVG.indexOf(el["tagName"]);
 		var attributes = attrAvailSVG[typeId];
 		var id = attrSVG.length-1;
 		do {
-			if(!attributes[id]) continue;		// Skipping obsolete attributes for the type
 			var attrName = attrSVG[id];
+			var attrNodeName = "AN"+attrName;		// AttributeNode<node name>
+
+			if(!attributes[id]) {
+				// Removing the attribute if it is obsolete for the current type
+				if(el.hasOwnProperty(attrNodeName)) {
+					delete el[attrNodeName];
+				}
+				continue;		// Skipping obsolete attributes for the type
+			}
+			if(el.hasOwnProperty(attrNodeName)) continue; 	// Skipping if the object already has pointer to this attribute
+			var node = document.createAttribute(attrName);
+			el.setAttributeNode(node);
+			// console.log("Setting attribute: "+attrName+" and nodeName: "+attrNodeName);
+			el[attrNodeName] = el.getAttributeNode(attrName);
 		} while (id--)
 	}
 
+	////////////////////////////
+	// PUBLIC METHODS ASSIGNMENT
+	////////////////////////////
+	e.el = el;
+	e.tagId = tagId;
+	e.tagName = tagName;
 
 
 	return e;
