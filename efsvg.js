@@ -42,6 +42,7 @@ var EF = function(doc){
 		el = updatedSVGtype(el);		// Updates the SVG type of the object based on its EF object properties
 		setSVGAttributes(el);			// Set all attributes for the SVG element based on its EF properties
 		setEFAccessor(el);				// Set accessor methods for all EF properties
+		// forEach(el.getPropsEF, function(prop) { setEFAccessor(prop); });		// Setting accessor to each property of the EF object
 		return el;		
 	};
 
@@ -67,7 +68,7 @@ var EF = function(doc){
 		}
 		if(tagId>=0) return tagId;
 		if(e.log) console.warn("Failed to identify SVG type <tagName> for object: "+el.toString() + " of type: "+el["EFtype"]);
-	}
+	};
 
 //------------------------------------------------------------------------------------------------------------------------------
 	// Returns name of SVG type of the element based on its type and properties
@@ -78,7 +79,66 @@ var EF = function(doc){
 			return null;
 		}
 		return typesSVG[tagId_];
-	}
+	};
+
+//------------------------------------------------------------------------------------------------------------------------------
+
+	// Shortcut for the <for> loop
+	var forEach = function(array, callback) {
+		if(!array || !callback) return;
+		// Doing loop for array
+		if(isArray(array)) {
+			var ELEMENT_ID = array.length-1;
+			do {
+				callback(array[ELEMENT_ID]);
+			} while (ELEMENT_ID--);
+		}
+		// Doing loop for object
+		for(key in array) {
+			callback(key);
+		};
+		return;
+	};
+
+//------------------------------------------------------------------------------------------------------------------------------	
+
+	function forEachRes(array, callback) {
+		if(!array || !callback) return;
+		var result = [];
+		forEach(array, function (element) {
+			result.push(callback(element));
+		});
+		return result;
+	};
+
+//------------------------------------------------------------------------------------------------------------------------------
+
+	// Checks the real type of the variable
+	var typeOf = function(value) {
+	    var s = typeof value;
+	    if (s === 'object') {
+	        if (value) {
+	            if (value instanceof Array) {
+	                s = 'array';
+	            }
+	        } else {
+	            s = 'null';
+	        }
+	    }
+	    return s;
+	};
+
+//------------------------------------------------------------------------------------------------------------------------------
+
+	// Checks whether the variable is an Array
+	var isArray = function(variable) {
+	    // Trying ECMAScript 5 built-in method
+	    if(Array.isArray) {
+	    	return Array.isArray(variable);
+	    }
+	    // Trying instanceOf (CAUTION: works only if the <variable> is from the same frame/window as the function call)
+	    return variable instanceof Array;
+	};
 
 //------------------------------------------------------------------------------------------------------------------------------
 
@@ -205,12 +265,13 @@ var EF = function(doc){
 
 	// Creates object with properties of the EF object
 	var getPropsEF = function(el) {
+		if(!el) return;
 		var props = propsEF;
 		for(key in props) {
 			props[key] = el[key];
 		}
 		return props;
-	}
+	};
 //------------------------------------------------------------------------------------------------------------------------------
 	// Replaces the object by a new one with correct tagName if needed (tagName differs from EFtag)
 	var updatedSVGtype = function(el) {
@@ -226,7 +287,7 @@ var EF = function(doc){
 		props["EFtag"] = tagName_1;
 		var newEl = e.el(props);
 		return newEl;
-	}
+	};
 
 //------------------------------------------------------------------------------------------------------------------------------
 	// Sets all accessors to the properties of the EF element
@@ -240,6 +301,7 @@ var EF = function(doc){
 	var setSVGAttributes = function(el) {
 		var typeId = typesSVG.indexOf(el["tagName"]);
 		var attributes = attrAvailSVG[typeId];
+
 		var id = attrSVG.length-1;
 		do {
 			var attrName = attrSVG[id];
@@ -257,8 +319,8 @@ var EF = function(doc){
 			el.setAttributeNode(node);
 			// console.log("Setting attribute: "+attrName+" and nodeName: "+attrNodeName);
 			el[attrNodeName] = el.getAttributeNode(attrName);
-		} while (id--)
-	}
+		} while (id--);
+	};
 
 	////////////////////////////
 	// PUBLIC METHODS ASSIGNMENT
@@ -266,6 +328,10 @@ var EF = function(doc){
 	e.el = el;
 	e.tagId = tagId;
 	e.tagName = tagName;
+	e.getPropsEF = getPropsEF;
+	e.forEach = forEach;
+	e.typeOf = typeOf;
+	e.isArray = isArray;
 
 
 	return e;
