@@ -1,4 +1,4 @@
-var EF = function(doc){
+var EF = (function(doc, u){
 
 	// Main public object
 	var e = {
@@ -42,7 +42,7 @@ var EF = function(doc){
 		el = updatedSVGtype(el);		// Updates the SVG type of the object based on its EF object properties
 		setSVGAttributes(el);			// Set all attributes for the SVG element based on its EF properties
 		setEFAccessor(el);				// Set accessor methods for all EF properties
-		// forEach(el.getPropsEF, function(prop) { setEFAccessor(prop); });		// Setting accessor to each property of the EF object
+		// forEachIn(el.getPropsEF, function(prop) { setEFAccessor(prop); });		// Setting accessor to each property of the EF object
 		return el;		
 	};
 
@@ -79,65 +79,6 @@ var EF = function(doc){
 			return null;
 		}
 		return typesSVG[tagId_];
-	};
-
-//------------------------------------------------------------------------------------------------------------------------------
-
-	// Shortcut for the <for> loop
-	var forEach = function(array, callback) {
-		if(!array || !callback) return;
-		// Doing loop for array
-		if(isArray(array)) {
-			var ELEMENT_ID = array.length-1;
-			do {
-				callback(array[ELEMENT_ID]);
-			} while (ELEMENT_ID--);
-		}
-		// Doing loop for object
-		for(key in array) {
-			callback(key);
-		};
-		return;
-	};
-
-//------------------------------------------------------------------------------------------------------------------------------	
-
-	function forEachRes(array, callback) {
-		if(!array || !callback) return;
-		var result = [];
-		forEach(array, function (element) {
-			result.push(callback(element));
-		});
-		return result;
-	};
-
-//------------------------------------------------------------------------------------------------------------------------------
-
-	// Checks the real type of the variable
-	var typeOf = function(value) {
-	    var s = typeof value;
-	    if (s === 'object') {
-	        if (value) {
-	            if (value instanceof Array) {
-	                s = 'array';
-	            }
-	        } else {
-	            s = 'null';
-	        }
-	    }
-	    return s;
-	};
-
-//------------------------------------------------------------------------------------------------------------------------------
-
-	// Checks whether the variable is an Array
-	var isArray = function(variable) {
-	    // Trying ECMAScript 5 built-in method
-	    if(Array.isArray) {
-	    	return Array.isArray(variable);
-	    }
-	    // Trying instanceOf (CAUTION: works only if the <variable> is from the same frame/window as the function call)
-	    return variable instanceof Array;
 	};
 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -326,14 +267,12 @@ var EF = function(doc){
 	// PUBLIC METHODS ASSIGNMENT
 	////////////////////////////
 	e.el = el;
+	e.u = u;
 	e.tagId = tagId;
 	e.tagName = tagName;
 	e.getPropsEF = getPropsEF;
-	e.forEach = forEach;
-	e.typeOf = typeOf;
-	e.isArray = isArray;
 
 
 	return e;
 
-}(document);
+}(document, UT));
