@@ -1,9 +1,17 @@
+// Generic utilities
+
 var UT = (function(){
 	var u = {};
 
 //------------------------------------------------------------------------------------------------------------------------------
-	// Shortcut for the <for> loop
-	u.forEachIn = function(array, callback) {
+	/**
+	 * Loops through elements of array or object and applies the specified function to it
+	 * @method forEachIn
+	 * @param  {Array|Object}   array 	Array of object to each of which the function should be applied
+	 * @param  {Function} callback	Function to be applied to each element of the array
+	 * @return {NA}
+	 */
+	function forEachIn(array, callback) {
 		if(!array || !callback) return;
 		// Doing loop for array
 		if(isArray(array)) {
@@ -18,10 +26,17 @@ var UT = (function(){
 			callback(key);
 		};
 	};
+	u.forEachIn = forEachIn;
 
 //------------------------------------------------------------------------------------------------------------------------------
-		// Shortcut for the <for> loop that returns an array of results from each call of the loop
-	u.resForEachIn = function(array, callback) {
+	/**
+	 * Loops through elements of array or object and puts each result of the function call into output array
+	 * @method resForEachIn
+	 * @param  {Array|Object}     array  Array of object to each of which the function should be applied
+	 * @param  {Function}   callback	Function to be applied to each element of the array
+	 * @return {Array} Array of results from each call to each element
+	 */
+	function resForEachIn(array, callback) {
 		if(!array || !callback) return;
 		var result = [];
 		forEachIn(array, function (element) {
@@ -29,10 +44,11 @@ var UT = (function(){
 		});
 		return result;
 	};
+	u.resForEachIn = resForEachIn;
 
 //------------------------------------------------------------------------------------------------------------------------------
 	// Checks the real type of the variable
-	u.typeOf = function(value) {
+	function typeOf(value) {
 	    var s = typeof value;
 	    if (s === 'object') {
 	        if (value) {
@@ -45,10 +61,11 @@ var UT = (function(){
 	    }
 	    return s;
 	};
+	u.typeOf = typeOf;
 
 //------------------------------------------------------------------------------------------------------------------------------
 	// Checks whether the variable is an Array
-	u.isArray = function(variable) {
+	function isArray(variable) {
 	    // Trying ECMAScript 5 built-in method
 	    if(Array.isArray) {
 	    	return Array.isArray(variable);
@@ -56,6 +73,7 @@ var UT = (function(){
 	    // Trying instanceOf (CAUTION: works only if the <variable> is from the same frame/window as the function call)
 	    return variable instanceof Array;
 	};
+	u.isArray = isArray;
 
 //------------------------------------------------------------------------------------------------------------------------------
 

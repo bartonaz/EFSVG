@@ -1,3 +1,11 @@
+
+/**
+ * Global object that is added to the global scope
+ * @module  EFSVG
+ * @param  {Object} document (to make it local for the module)
+ * @param  {Object} utilities (utils.js)
+ * @return {Object} 
+ */
 var EF = (function(doc, u){
 
 	// Main public object
@@ -17,17 +25,25 @@ var EF = (function(doc, u){
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //------------------------------------------------------------------------------------------------------------------------------
-	// Creates an EF element using type or object of properties as input	
+	/**
+	 * Creates an EF element with specified type += set of properties
+	 * @param  {String|Object} input
+	 * @return {Object} DOM element with tag corresponding to the type and properties of the EF object
+	 */
 	var el = function(input) {
 		// Setting type and properties of the object that will be created
 		var type = "";
 		var props = {};
-		if (typeof input === "string") {	// Getting type if only type was provided to initializer
+		// Getting type if only type was provided to initializer
+		if (typeof input === "string") {
 			type = input.toLowerCase();
 			tag = type;
 			props["EFtype"] = type;
 			props["EFtag"] = tag;
-		} else if(typeof input === "object") {		// Getting type from the input object and setting additional provided properties
+
+		} 
+		// Getting type from the input object and setting additional provided properties
+		else if(typeof input === "object") {
 			// Creating the simple object first if the object passed to initializer
 			props = input;
 			type = props["EFtype"];
@@ -37,17 +53,25 @@ var EF = (function(doc, u){
 			return;
 		}
 		if(!isTypeEFcorrect(type)) return;
-		var el = createDOMel(tag);		// Create DOM instance of the object with the specified type
-		setPropsEF(el,props);			// Set all default properties + specified type
-		el = updatedSVGtype(el);		// Updates the SVG type of the object based on its EF object properties
-		setSVGAttributes(el);			// Set all attributes for the SVG element based on its EF properties
-		setEFAccessor(el);				// Set accessor methods for all EF properties
-		// forEachIn(el.getPropsEF, function(prop) { setEFAccessor(prop); });		// Setting accessor to each property of the EF object
+		// Create DOM instance of the object with the specified type
+		var el = createDOMel(tag);
+		// Set all default properties + specified type + accessor to each property
+		setPropsEF(el,props);
+		// Update the SVG type of the object based on its EF object properties
+		el = updatedSVGtype(el);
+		// Set all attributes for the SVG element based on its EF properties
+		setSVGAttributes(el);
+		
 		return el;		
 	};
 
 //------------------------------------------------------------------------------------------------------------------------------
-	// Returns the id of SVG type (from typeSVG) of the element based on its type and properties
+	/**
+	 * Calculates id of SVG type (from typesSVG) of the EF object based on its type and properties
+	 * @param  {Object} el - EF object
+	 * @return {Integer} id of the tag 
+	 * @method tagId
+	 */
 	var tagId = function(el) {
 		var tagNames = typesSVG;
 		var tagId = -1;
@@ -71,7 +95,11 @@ var EF = (function(doc, u){
 	};
 
 //------------------------------------------------------------------------------------------------------------------------------
-	// Returns name of SVG type of the element based on its type and properties
+	/**
+	 * Returns name of SVG type of the element based on its type and properties
+	 * @param  {Object} el
+	 * @return {String} name of the tag
+	 */
 	var tagName = function(el) {
 		var tagId_ = tagId(el);
 		if(tagId_<0 || tagId_>typesSVG.length) {
@@ -88,16 +116,25 @@ var EF = (function(doc, u){
 	// PRIVATE METHODS  /////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//------------------------------------------------------------------------------------------------------------------------------
-	// All possible types of the E element
+	/**
+	 * All possible types of the EF element
+	 * @type {Array}
+	 */
 	var typesEF = ["rect","ellipse","line"];
 
 //------------------------------------------------------------------------------------------------------------------------------
-	// All possible types of the SVG element
+	/**
+	 * All possible types (tags) of the SVG element
+	 * @type {Array}
+	 */
 	var typesSVG = ["line","path","rect","ellipse","circle","text","textPath","image","linearGradient","radialGradient"];
 
 //------------------------------------------------------------------------------------------------------------------------------
-	// Checks whether the type is available
+	/**
+	 * Checks whether the type is available
+	 * @param  {String} type - type that object should have
+	 * @return {Bool} true is type is acceptable
+	 */
 	var isTypeEFcorrect = function(type){
 		if(typesEF.indexOf(type) !== -1) return true;
 		if(e.log) console.warn("Wrong type of the EF element: '"+type+"'");
@@ -105,25 +142,31 @@ var EF = (function(doc, u){
 	};
 
 //------------------------------------------------------------------------------------------------------------------------------
-	// All possible properties of the E element (with default values)
+	/**
+	 * All possible properties of the EF element (with default values)
+	 * @type {Object} list of possible properties with their default values
+	 */
 	var propsEF = {
 		// Geometry
-		"EFtype":"rect",						// Type of the element
-		"EFtag":"rect",							// Tag of SVG element that should be used
-		"EFx":10,								// Array of X coordinates of each point (default: single value)
-		"EFy":0,								// Array of Y coordinates of each point (default: single value)
-		"EFfactor":1,							// Factor of attraction of each point (1-straight lines, <1-arcs)
-		"EFxO":0,								// X coordinate of the origin point (from which the sector to both ends of the curve is drawn)
-		"EFyO":0,								// Y coordinate of the origin point (from which the sector to both ends of the cruve is drawn)
-		"EFsector":false,						// Whether the sector from the origin to both ends of the line should be drawn
-		"EFstart":0,							// Point of the start of the shape drawing
-		"EFend":1,								// Point of the end of the shape drawing
-		"EFtoShape":{},							// Shape to which the shape transformation should progress
-		"EFtoProgress":0						// Progress of the shape transformation
+		"EFtype":"rect",			// Type of the element
+		"EFtag":"rect",				// Tag of SVG element that should be used
+		"EFx":10,					// Array of X coordinates of each point (default: single value)
+		"EFy":0,					// Array of Y coordinates of each point (default: single value)
+		"EFfactor":1,				// Factor of attraction of each point (1-straight lines, <1-arcs)
+		"EFxO":0,					// X coordinate of the origin point (from which the sector to both ends of the curve is drawn)
+		"EFyO":0,					// Y coordinate of the origin point (from which the sector to both ends of the cruve is drawn)
+		"EFsector":false,			// Whether the sector from the origin to both ends of the line should be drawn
+		"EFstart":0,				// Point of the start of the shape drawing
+		"EFend":1,					// Point of the end of the shape drawing
+		"EFtoShape":{},				// Shape to which the shape transformation should progress
+		"EFtoProgress":0			// Progress of the shape transformation
 	};
 
 //------------------------------------------------------------------------------------------------------------------------------
-	// Availability of all properties for the SVG element [Order as in propsSVG array]
+	/**
+	 * Availability of all properties for the SVG element [Order as in attrSVG array]
+	 * @type {Array} 1 - avalable, 0 - not available
+	 */
 	var attrAvailSVG = [
 		[0,0,0,0,0,0,0,0,0, 1,1,1,1,0,0,0, 1,0, 1,1,1,1,1,1,0,0, 1,1],			// LINE
 		[0,0,0,0,0,0,0,0,0, 0,0,0,0,0,1,0, 1,0, 1,1,1,1,1,1,1,1, 1,1],			// PATH
@@ -136,7 +179,10 @@ var EF = (function(doc, u){
 	];
 
 //------------------------------------------------------------------------------------------------------------------------------
-	// All possible properties of the SVG element
+	/**
+	 * All possible properties of the SVG element that can be used
+	 * @type {Array}
+	 */
 	var attrSVG = [
 	// Geometry (Areas)
 	"r",
@@ -174,7 +220,11 @@ var EF = (function(doc, u){
 	];
 
 //------------------------------------------------------------------------------------------------------------------------------
-	// Creates true SVG element in the DOM
+	/**
+	 * Creates true SVG element in the DOM
+	 * @param  {String} name - tag that should be used for the SVG element
+	 * @return {Object} DOM element of the svg namespace
+	 */
 	var createDOMel = function(name) {
 		if(e.log) console.log("Creating a DOM element of type: "+name);
 		var el = doc.createElementNS(this.ns, name);
@@ -215,7 +265,13 @@ var EF = (function(doc, u){
 	};
 //------------------------------------------------------------------------------------------------------------------------------
 	// Replaces the object by a new one with correct tagName if needed (tagName differs from EFtag)
-	var updatedSVGtype = function(el) {
+	/**
+	 * Replaces the object by a new one with correct tagName if needed (tagName differs from EFtag)
+	 * @method updatedSVGtype
+	 * @param  {[type]}       el
+	 * @return {[type]}
+	 */
+	function updatedSVGtype(el) {
 		if(!el.hasOwnProperty("EFtype")) {
 			if(e.log) console.warn("Trying to update SVG type of the object of undefined type: "+el.toString());
 		}
@@ -233,8 +289,14 @@ var EF = (function(doc, u){
 //------------------------------------------------------------------------------------------------------------------------------
 	// Sets all accessors to the properties of the EF element
 	var setEFAccessor = function(el, prop) {
+		if(u.typeOf(el[prop]) === "object") return;		// Skipping properties that are not simple values
 		if(e.log) console.log("Setting accessor <"+prop+"> to the EF object with type: <"+el["EFtype"]+">");
+	};
 
+//------------------------------------------------------------------------------------------------------------------------------
+	// Is called whenever any of the EF object's properties is changed
+	var propTrigger = function(el, propName) {
+		if(e.log) console.log("Triggered change of property <"+propName+"> in element: "+el);
 	};
 
 //------------------------------------------------------------------------------------------------------------------------------
