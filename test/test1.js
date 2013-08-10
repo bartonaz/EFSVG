@@ -1,6 +1,6 @@
-EF.log = true;
+EFSVG.log = true;
 var svg = document.getElementById("svg");
-var c1 = EF.el("ellipse");
+var c1 = EFSVG.el("ellipse");
 
 var c0 = document.getElementById("c0");
 
