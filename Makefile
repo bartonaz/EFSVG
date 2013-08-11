@@ -2,27 +2,28 @@
 srcDir = src
 
 # Main EFSVG script 
-ef = ${srcDir}/efsvg.js
+efsvgModule = ${srcDir}/efsvg.js
 
 # EFSVG Modules directory
 efDir = ${srcDir}/efsvg
 
 # EFSVG Modules
-# efMod = 
+efsvgClasses =		${efDir}/main.js
 
 
 # Main utility script
-ut = ${srcDir}/utils.js
+utilityModule = ${srcDir}/utils.js
 
 # Utility Modules diretory
 utDir = ${srcDir}/utils
 
 # Utility Modules
-# utMod = 
+utilityClasses = 	${utDir}/gen.js\
+					${utDir}/dom.js
 
 
 # Building full list of files to be merged
-fileList = ${ef} ${ut}
+fileList = ${efsvgClasses} ${efsvgModule} ${utilityClasses} ${utilityModule}
 
 # Setting 2 versions to be built: development and minified
 all: EFSVG_dev.js EFSVG.js doc
