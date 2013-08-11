@@ -1,21 +1,20 @@
 /**
  * Module with the general purpose utilities
  * @module JSUTILS
+ * @main JSUTILS
  */
 
 
 /**
  * Global (general) utilities
- * @class GlobalUtils
+ * @class JSUTILS
+ * @static
  */
 var JSUTILS = (function () {
 
     "use strict";
 
-    /**
-     * Public object returned by the module
-     * @type {Object}
-     */
+    // Public instance of the class
     var U = {};
 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -32,7 +31,7 @@ var JSUTILS = (function () {
         }
         // Trying instanceOf (CAUTION: works only if the <variable> is from the same frame/window as the function call)
         return variable instanceof Array;
-    }
+    };
 
     U.isArray = isArray;
 
@@ -55,7 +54,7 @@ var JSUTILS = (function () {
             }
         }
         return s;
-    }
+    };
 
     U.typeOf = typeOf;
 
@@ -64,8 +63,7 @@ var JSUTILS = (function () {
      * Loops through elements of array or object and applies the specified function to it
      * @method forEachIn
      * @param  {Array|Object}   array   Array of object to each of which the function should be applied
-     * @param  {Function} callback  Function to be applied to each element of the array
-     * @return {NA}
+     * @param  {Function} callback  Function to be called on each element of the array
      */
     function forEachIn(array, callback) {
         if (!array || !callback) { return; }
@@ -81,7 +79,7 @@ var JSUTILS = (function () {
         for (key in array) {
             callback(key);
         };
-    }
+    };
 
     U.forEachIn = forEachIn;
 
@@ -100,7 +98,7 @@ var JSUTILS = (function () {
             result.push(callback(element));
         });
         return result;
-    }
+    };
 
     U.resForEachIn = resForEachIn;
 

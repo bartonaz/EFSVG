@@ -1,25 +1,27 @@
 /**
  * Module for creating and manipulation of SVG element with synchronizeable higher order properties
  * @module EFSVG
+ * @main EFSVG
  */
 
 
 /**
  * Main global functionality for creating the SVG element with necessary properties and attributes
  * @class EFSVG
+ * @static
  * @param  {Object} document Reference to global <document> object for faster local access
  */
 var EFSVG = (function(doc){
 
 
-	/** @property {Object} e Public object returned by the library */
+	// Public instance of the class
 	var E = {};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// FRAMEWORK INFO //////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+	
 	/**
 	 * Stable version of the framework
 	 * @property {String} version
@@ -29,16 +31,29 @@ var EFSVG = (function(doc){
 	/**
 	 * Namespace used for the objects created by the framework
 	 * @property {String} ns
+	 * @public
 	 */
 	E.svgNS = "http://www.w3.org/2000/svg";
 
-	/** @property {String} nsLink Namespace used for the anchors attached to the objects, created by the framework */
+	/**
+	 * Namespace used for the anchors attached to the objects, created by the framework
+	 * @property {String} svgNSLink
+	 * @public
+	 */
 	E.svgNSLink = "http://www.w3.org/1999/xlink";
 	
-	/** @property {String} svgVer Version of SVG used for the created objects */
+	/**
+	 * Version of SVG used for the created objects
+	 * @property {String} svgVer
+	 * @public
+	 */
 	E.svgVer = "1.1";
 
-	/** @property {Boolean} log Flag to toggle debug logging */
+	/**
+	 * Flag to toggle debug logging
+	 * @property {Boolean} log
+	 * @public
+	 */
 	E.log = true;
 
 
@@ -46,14 +61,23 @@ var EFSVG = (function(doc){
 	// INTERNAL PROPERTIES  /////////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	/** @property {Array} typesEF All possible types of the EF element */
-	var typesEF = ["rect","ellipse","line"];
+	/**
+	 * All possible types of the EF element
+	 * @property {Array} efTypes
+	 */
+	var efTypes = ["rect","ellipse","line"];
 
-	/** @property {Array} svgTypes All possible types (tags) of the SVG element */
+	/**
+	 * All possible types (tags) of the SVG element
+	 * @property {Array} svgTypes
+	 */
 	var svgTypes = ["line","path","rect","ellipse","circle","text","textPath","image","linearGradient","radialGradient"];
 
-	/** @property {Object} propsEF List of all possible properties with their default values */
-	var propsEF = {
+	/**
+	 * List of all possible properties with their default values
+	 * @property {Object} efProps
+	 */
+	var efProps = {
 		// Geometry
 		"EFtype":"rect",			// Type of the element
 		"EFtag":"",					// Tag of SVG element that should be used (If empty, object not totally configured)
@@ -133,7 +157,8 @@ var EFSVG = (function(doc){
 	 * Creates an EF element with specified type += set of properties
 	 * @method el
 	 * @param  {String|Object} input
-	 * @return {Object} DOM element with tag corresponding to the type and properties of the EF object
+	 * @return {Object} DOM element with added EF properties
+	 * @public
 	 */
 	function el(input) {
 		// Setting type and properties of the object that will be created
@@ -172,8 +197,8 @@ var EFSVG = (function(doc){
 	/**
 	 * Calculates id of SVG type (from svgTypes) of the EF object based on its type and properties
 	 * @method tagId
-	 * @param  {Object} el - EF object
-	 * @return {Integer} id of the tag 
+	 * @param  {Object} el EF object
+	 * @return {Integer} Id of the tag (in tagId)
 	 * @method tagId
 	 */
 	function tagId(el) {
@@ -222,7 +247,7 @@ var EFSVG = (function(doc){
 	 * @return {Bool} true is type is acceptable
 	 */
 	function isTypeEFcorrect(type) {
-		if(typesEF.indexOf(type) !== -1) return true;
+		if(efTypes.indexOf(type) !== -1) return true;
 		if(E.log) console.warn("Wrong type of the EF element: '"+type+"'");
 		return false;
 	};
@@ -249,7 +274,7 @@ var EFSVG = (function(doc){
 	 * @return {NA}
 	 */
 	var setPropsEF = function(el,props) {
-		var allEFproperties = propsEF;
+		var allEFproperties = efProps;
 		// Adding all properties if they haven't been added yet
 		if(!el.hasOwnProperty(allEFproperties[0])) {
 			// Setting properties
@@ -270,7 +295,6 @@ var EFSVG = (function(doc){
 	};
 
 //------------------------------------------------------------------------------------------------------------------------------
-
 	/**
 	 * Reads all properties of the EF object
 	 * @method
@@ -279,12 +303,13 @@ var EFSVG = (function(doc){
 	 */
 	var getPropsEF = function(el) {
 		if(!el) return;
-		var props = propsEF;
+		var props = efProps;
 		for(key in props) {
 			props[key] = el[key];
 		}
 		return props;
 	};
+
 //------------------------------------------------------------------------------------------------------------------------------
 	/**
 	 * Replaces the object by a new one with correct tagName if needed (if tagName differs from EFtag)
@@ -309,20 +334,20 @@ var EFSVG = (function(doc){
 
 //------------------------------------------------------------------------------------------------------------------------------
 	// Sets all accessors to the properties of the EF element
-	var setEFAccessor = function(el, prop) {
+	function setEFAccessor(el, prop) {
 		if(ut.typeOf(el[prop]) === "object") return;		// Skipping properties that are not simple values
 		if(E.log) console.log("Setting accessor <"+prop+"> to the EF object with type: <"+el["EFtype"]+">");
 	};
 
 //------------------------------------------------------------------------------------------------------------------------------
 	// Is called whenever any of the EF object's properties is changed
-	var propTrigger = function(el, propName) {
+	function propTrigger(el, propName) {
 		if(E.log) console.log("Triggered change of property <"+propName+"> in element: "+el);
 	};
 
 //------------------------------------------------------------------------------------------------------------------------------
 	// Sets all SVG attributes to the object of given <type>
-	var setSVGAttributes = function(el) {
+	function setSVGAttributes(el) {
 		var typeId = svgTypes.indexOf(el["tagName"]);
 		var attributes = svgAttrAvailMap[typeId];
 
