@@ -9,12 +9,20 @@ if (!JSUTILS) JSUTILS = {};
  * Generic Javascript utilities
  * @class Gen
  */
-JSUTILS.Gen = (function () {
+JSUTILS.Gen = (function (J) {
     
     "use strict";
 
     // Public instance of the class
-    var U = {};
+    var U = {
+
+        /**
+         * Flag to toggle debug logging
+         * @property {Boolean} log
+         */
+        log: true
+
+    };
 
 //------------------------------------------------------------------------------------------------------------------------------
     /**
@@ -75,7 +83,7 @@ JSUTILS.Gen = (function () {
             return;
         }
         // Doing loop for object
-        for (key in array) {
+        for (var key in array) {
             callback(key);
         };
     };
@@ -105,4 +113,4 @@ JSUTILS.Gen = (function () {
 
     return U;
 
-}())
+}(JSUTILS))

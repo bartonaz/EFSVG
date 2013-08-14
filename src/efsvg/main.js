@@ -10,51 +10,54 @@ if (!EFSVG) EFSVG = {};
  * @class Main
  * @static
  */
-EFSVG.Main = (function(doc, u){
+EFSVG.Main = (function(doc, U){
 
     "use strict";
-
-    // Public instance of the class
-    var E = {};
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // FRAMEWORK INFO //////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    
-    /**
-     * Stable version of the framework
-     * @property {String} version
-     */
-    E.version = "1.0.0";
-    
-    /**
-     * Namespace used for the objects created by the framework
-     * @property {String} ns
-     * @public
-     */
-    E.svgNS = "http://www.w3.org/2000/svg";
+    // Public instance of the class
+    var E = {
 
-    /**
-     * Namespace used for the anchors attached to the objects, created by the framework
-     * @property {String} svgNSLink
-     * @public
-     */
-    E.svgNSLink = "http://www.w3.org/1999/xlink";
-    
-    /**
-     * Version of SVG used for the created objects
-     * @property {String} svgVer
-     * @public
-     */
-    E.svgVer = "1.1";
+        /**
+         * Stable version of the framework
+         * @property {String} version
+         */
+        version: "1.0.0",
+        
+        /**
+         * Namespace used for the objects created by the framework
+         * @property {String} ns
+         * @public
+         */
+        svgNS: "http://www.w3.org/2000/svg",
 
-    /**
-     * Flag to toggle debug logging
-     * @property {Boolean} log
-     * @public
-     */
-    E.log = true;
+        /**
+         * Namespace used for the anchors attached to the objects, created by the framework
+         * @property {String} svgNSLink
+         * @public
+         */
+        svgNSLink: "http://www.w3.org/1999/xlink",
+        
+        /**
+         * Version of SVG used for the created objects
+         * @property {String} svgVer
+         * @public
+         */
+        svgVer: "1.1",
+
+        efObjName: "EFSVG",
+
+        /**
+         * Flag to toggle debug logging
+         * @property {Boolean} log
+         * @public
+         */
+        log: true
+
+    };
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +83,7 @@ EFSVG.Main = (function(doc, u){
     var efProps = {
         // Geometry
         "EFtype":"rect",            // Type of the element
-        "EFtag":"",                 // Tag of SVG element that should be used (If empty, object not totally configured)
+        "EFtag":"",                 // Tag of SVG element that should be used (If empty, object not yet completely initialized)
         "EFx":10,                   // Array of X coordinates of each point (default: single value)
         "EFy":0,                    // Array of Y coordinates of each point (default: single value)
         "EFfactor":1,               // Factor of attraction of each point (1-straight lines, <1-arcs)
@@ -174,17 +177,18 @@ EFSVG.Main = (function(doc, u){
 
         } 
         // Getting type from the input object and setting additional provided properties
-        else if(typeof input === "object") {
+        else if (typeof input === "object") {
             // Creating the simple object first if the object passed to initializer
             props = input;
             type = props["EFtype"];
             tag = props["EFtag"];
         } else {
-            if(E.log) console.warn("Wrong input in el(): '"+input+"'");
+            if (E.log) console.warn("Wrong input in el(): '"+input+"'");
             return;
         }
-        if(!isTypeEFcorrect(type)) return;
-        var el = createDOMel(tag);
+        if (!isTypeEFcorrect(type)) return;
+        var el = U.Dom.createDOMel(tag, E.svgNS);
+        el.EFprops = {};
         setPropsEF(el,props);
         el = updatedSVGtype(el);
         setSVGAttributes(el);
@@ -205,8 +209,8 @@ EFSVG.Main = (function(doc, u){
     function tagId(el) {
         var tagNames = svgTypes;
         var tagId = -1;
-        if(!el.hasOwnProperty("EFtype")) {
-            if(E.log) console.warn("Object has no <type> property assigned. Is it EFSVG object?");
+        if (!el.hasOwnProperty("EFtype")) {
+            if (E.log) console.warn("Object has no <type> property assigned. Is it EFSVG object?");
         }
         // Deciding on the SVG type to be used
         switch(el["EFtype"]) {
@@ -220,8 +224,8 @@ EFSVG.Main = (function(doc, u){
                 tagId = 1;      // path
                 break;
         }
-        if(tagId>=0) return tagId;
-        if(E.log) console.warn("Failed to identify SVG type <tagName> for object: "+el.toString() + " of type: "+el["EFtype"]);
+        if (tagId>=0) return tagId;
+        if (E.log) console.warn("Failed to identify SVG type <tagName> for object: "+el.toString() + " of type: "+el["EFtype"]);
     };
 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -234,8 +238,8 @@ EFSVG.Main = (function(doc, u){
      */
     function tagName(el) {
         var tagId_ = tagId(el);
-        if(tagId_<0 || tagId_>svgTypes.length) {
-            if(E.log) console.warn("Wrong tagId in <tagName> function: "+tagId_+" for object of type: "+el["EFtype"]);
+        if (tagId_<0 || tagId_>svgTypes.length) {
+            if (E.log) console.warn("Wrong tagId in <tagName> function: "+tagId_+" for object of type: "+el["EFtype"]);
             return null;
         }
         return svgTypes[tagId_];
@@ -251,22 +255,9 @@ EFSVG.Main = (function(doc, u){
      * @return {Bool} true is type is acceptable
      */
     function isTypeEFcorrect(type) {
-        if(efTypes.indexOf(type) !== -1) return true;
-        if(E.log) console.warn("Wrong type of the EF element: '"+type+"'");
+        if (efTypes.indexOf(type) !== -1) return true;
+        if (E.log) console.warn("Wrong type of the EF element: '"+type+"'");
         return false;
-    };
-
-//------------------------------------------------------------------------------------------------------------------------------
-    /**
-     * Creates true SVG element in the DOM
-     * @method createDOMel
-     * @param  {String} name Tag that should be used for the SVG element
-     * @return {Object} DOM element of the svg namespace
-     */
-    var createDOMel = function(name) {
-        if(E.log) console.log("Creating a DOM element with tag: "+name);
-        var el = doc.createElementNS(E.svgNS, name);
-        return el;
     };
 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -279,21 +270,33 @@ EFSVG.Main = (function(doc, u){
     var setPropsEF = function(el,props) {
         var allEFproperties = efProps;
         // Adding all properties if they haven't been added yet
-        if(!el.hasOwnProperty(allEFproperties[0])) {
-            // Setting properties
-            for(var key in allEFproperties){
+        if (!el.hasOwnProperty(allEFproperties[0])) {
+            // Creating object with all property definitions
+            var propDefinitions = {};
+            U.Gen.forEachIn(allEFproperties, function (propName) {
+                propDefinitions[propName] = {
+                    get: function () { console.log("Getting property: <"+propName+">"); return this.EFprops[propName]; },
+                    set: function (value) { console.log("Setting property: <"+propName+"> to value: "+value); this.EFprops[propName] = value; }
+                }
+            });
+            if (E.log) console.log("Setting the list of properties: "+Object.keys(propDefinitions));
+            Object.defineProperties(el,propDefinitions);
+            // return;
+            for (var key in allEFproperties){
                 el[key] = allEFproperties[key];
             }
         }
+        if(E.log) console.log("Setting the values to properties");
         // Setting proper values to the specified properties
-        for(var propName in props) {
+        for (var propName in props) {
             // Skipping icompatible properties
-            if(!allEFproperties.hasOwnProperty(propName)) {
-                if(E.log) console.warn("Wrong property name '"+propName+"' for object of type '"+el["EFtype"]+"'");
+            if (!allEFproperties.hasOwnProperty(propName)) {
+                if (E.log) console.warn("Wrong property name '"+propName+"' for object of type '"+el["EFtype"]+"'");
                 continue;
             }
             // Setting the value
-            el[propName] = props[propName];
+            console.log("Set property <"+propName+"> to value: "+el[propName]);
+            // el[propName] = props[propName];
         }
     };
 
@@ -305,9 +308,9 @@ EFSVG.Main = (function(doc, u){
      * @return {Object} Object that contains values of all the properties of the EF object
      */
     var getPropsEF = function(el) {
-        if(!el) return;
+        if (!el) return;
         var props = efProps;
-        for(key in props) {
+        for (var key in props) {
             props[key] = el[key];
         }
         return props;
@@ -321,17 +324,17 @@ EFSVG.Main = (function(doc, u){
      * @return {Object} New EF object pointing to new DOM element with updated tag
      */
     function updatedSVGtype(el) {
-        if(!el.hasOwnProperty("EFtype")) {
-            if(E.log) console.warn("Trying to update SVG type of the object of undefined type: "+el.toString());
+        if (!el.hasOwnProperty("EFtype")) {
+            if (E.log) console.warn("Trying to update SVG type of the object of undefined type: "+el.toString());
         }
         var tagName_0 = el["tagName"];
         var tagName_1 = tagName(el);
-        if(tagName_0 === tagName_1) return el;
+        if (tagName_0 === tagName_1) return el;
         // Replacing the SVG element by the new one with the same visual representation
-        if(E.log) console.log("Tag of object with type: "+el["EFtype"]+" has to be changed from <"+tagName_0+"> to <"+tagName_1+">");
+        if (E.log) console.log("Tag of object with type: "+el["EFtype"]+" has to be changed from <"+tagName_0+"> to <"+tagName_1+">");
         var props = getPropsEF(el);
         props["EFtag"] = tagName_1;
-        var newEl = e.el(props);
+        var newEl = E.el(props);
         return newEl;
     };
 
@@ -343,8 +346,8 @@ EFSVG.Main = (function(doc, u){
      * @param  {Object}      prop List of properties for which the accessor should be set
      */
     function setEFAccessor(el, prop) {
-        if(ut.typeOf(el[prop]) === "object") return;        // Skipping properties that are not simple values
-        if(E.log) console.log("Setting accessor <"+prop+"> to the EF object with type: <"+el["EFtype"]+">");
+        if (ut.typeOf(el[prop]) === "object") return;        // Skipping properties that are not simple values
+        if (E.log) console.log("Setting accessor <"+prop+"> to the EF object with type: <"+el["EFtype"]+">");
     };
 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -354,8 +357,14 @@ EFSVG.Main = (function(doc, u){
      * @param  {Object}    el       EF object
      * @param  {String}    propName Name of the property that has changed
      */
-    function propTrigger(el, propName) {
-        if(E.log) console.log("Triggered change of property <"+propName+"> in element: "+el);
+    function propTrigger(el, name, value) {
+        if (E.log) console.log("Triggered change of property <"+name+"> with value <"+value+"> in element: "+el);
+        // Stopping if the EF object initialization has not finished (No tag set)
+        if (!el.hasOwnProperty("EFtag")) {
+            el[name] = value;
+            return;
+        }
+        // el[name] = value;
     };
 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -373,14 +382,14 @@ EFSVG.Main = (function(doc, u){
             var attrName = svgAttrAll[id];
             var attrNodeName = "AN"+attrName;       // AttributeNode<node name>
 
-            if(!attributes[id]) {
+            if (!attributes[id]) {
                 // Removing the attribute if it is obsolete for the current type
-                if(el.hasOwnProperty(attrNodeName)) {
+                if (el.hasOwnProperty(attrNodeName)) {
                     delete el[attrNodeName];
                 }
                 continue;       // Skipping obsolete attributes for the type
             }
-            if(el.hasOwnProperty(attrNodeName)) continue;   // Skipping if the object already has pointer to this attribute
+            if (el.hasOwnProperty(attrNodeName)) continue;   // Skipping if the object already has pointer to this attribute
             var node = document.createAttribute(attrName);
             el.setAttributeNode(node);
             // console.log("Setting attribute: "+attrName+" and nodeName: "+attrNodeName);

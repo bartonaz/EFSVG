@@ -37,6 +37,18 @@ Object.defineProperty(c0, "Val2",{
 // c0.setAttribute("stroke-dashoffset","9993px");
 // c0.setAttribute("stroke-dasharray","9999px");
 
-// console.log(Object.keys(c1))
+console.log(Object.keys(c1))
 
-svg.appendChild(c1);
+// svg.appendChild(c1);
+
+var c2 = {c: 10, d: 20};
+Object.defineProperties(c2,{
+	"a": {
+		get: function () {return this.c; },
+		set: function (value) {this.c = value; }
+	},
+	"b": {
+		get: function () {return this.d; },
+		set: function (value) {console.log("Setting the option to value: "+value); this.d = value; }
+	}
+});

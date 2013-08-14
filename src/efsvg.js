@@ -7,9 +7,17 @@
 var EFSVG;
 if (!EFSVG) EFSVG = {};
 
-// List of properties from the Main class to be set directly to the Module
-var childList = [ "version", "el", "log", "svgNS", "svgNSLink", "svgVer" ];
-// Setting Main class properties as public module properties
-JSUTILS.Gen.forEachIn(childList, function (prop) {
-	EFSVG[prop] = EFSVG.Main[prop];
-});
+
+/**
+ * Module level properties and methods
+ * @class EFSVG
+ */
+(function(E, J) {
+
+	// List of properties from the Main class to be copied directly to the Module
+	var childList = [ "version", "el", "svgNS", "svgNSLink", "svgVer" ];
+	// Setting Main class properties as public module properties
+	J.Gen.forEachIn(childList, function (prop) {
+		E[prop] = E.Main[prop];
+	} );
+}(EFSVG, JSUTILS) );
