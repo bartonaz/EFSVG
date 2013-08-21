@@ -9,12 +9,20 @@ if (!JSUTILS) JSUTILS = {};
  * Generic Javascript utilities
  * @class Gen
  */
-JSUTILS.Gen = (function () {
+JSUTILS.Gen = (function (J) {
     
     "use strict";
 
     // Public instance of the class
-    var U = {};
+    var U = {
+
+        /**
+         * Flag to toggle debug logging
+         * @property {Boolean} log
+         */
+        log: true
+
+    };
 
 //------------------------------------------------------------------------------------------------------------------------------
     /**
@@ -33,6 +41,42 @@ JSUTILS.Gen = (function () {
     };
 
     U.isArray = isArray;
+
+
+//------------------------------------------------------------------------------------------------------------------------------
+
+    /**
+     * Determines whether the object is of DOM type
+     * @method isDomObject
+     * @param  {Object}    obj Object to be checked
+     * @return {Boolean}       Whether the input object is DOM object
+     */
+    function isDomObject(obj) {
+
+        if (!obj.nodeType) return false;
+        return true;
+
+    };
+
+    U.isDomObject = isDomObject;
+
+//------------------------------------------------------------------------------------------------------------------------------
+
+    /**
+     * Determines whether the object is a DOM element
+     * @method isDomElement
+     * @param  {Object}    obj Object to be checked
+     * @return {Boolean}       Whether the input object is DOM element
+     */
+    function isDomElement(obj) {
+
+        if (!isDomObject(obj)) return false; 
+        if (obj.nodeType === 1) return true;
+        return false;
+
+    }
+
+    U.isDomElement = isDomElement;
 
 //------------------------------------------------------------------------------------------------------------------------------
     /**
@@ -75,7 +119,7 @@ JSUTILS.Gen = (function () {
             return;
         }
         // Doing loop for object
-        for (key in array) {
+        for (var key in array) {
             callback(key);
         };
     };
@@ -105,4 +149,4 @@ JSUTILS.Gen = (function () {
 
     return U;
 
-}())
+}(JSUTILS))
