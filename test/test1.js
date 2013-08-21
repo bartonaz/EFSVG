@@ -51,8 +51,12 @@ Object.defineProperties(c2,{
 		get: function () {return this.d; },
 		set: function (value) {console.log("Setting the option to value: "+value); this.d = value; }
 	}
+<<<<<<< HEAD
 });
 
 c1.EFx = 250;
 c1.id = "c1";
 svg.appendChild(c1);
+=======
+});
+>>>>>>> f493ae73694108fd243a729d84676336de14cb23

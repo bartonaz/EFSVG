@@ -27,17 +27,27 @@ JSUTILS.Dom = (function (J,doc) {
 //------------------------------------------------------------------------------------------------------------------------------
     /**
      * Creates an SVG element in the DOM uwing specified tag
+<<<<<<< HEAD
      * @method createDomEl
+=======
+     * @method createDOMel
+>>>>>>> f493ae73694108fd243a729d84676336de14cb23
      * @param  {String} tag Tag that should be used for the SVG element
      * @param  {String} ns  Namespace to be used for a DOM element to be created
      * @return {Object} DOM element in the svg namespace
      */
+<<<<<<< HEAD
     var createDomEl = function(tag, ns) {
         if (U.log) console.log("[createDomEl] Creating a DOM element with tag: "+tag);
+=======
+    var createDOMel = function(tag, ns) {
+        if (U.log) console.log("Creating a DOM element with tag: "+tag);
+>>>>>>> f493ae73694108fd243a729d84676336de14cb23
         var el = doc.createElementNS(ns, tag);
         return el;
     };
 
+<<<<<<< HEAD
     U.createDomEl = createDomEl;
 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -55,6 +65,9 @@ JSUTILS.Dom = (function (J,doc) {
     };
 
     U.replaceDomEl = replaceDomEl;
+=======
+    U.createDOMel = createDOMel;
+>>>>>>> f493ae73694108fd243a729d84676336de14cb23
 
 //------------------------------------------------------------------------------------------------------------------------------
 
