@@ -56,3 +56,19 @@ Object.defineProperties(c2,{
 c1.EFx = 250;
 c1.id = "c1";
 svg.appendChild(c1);
+
+var sliderChanged = function(value) {
+	c1["EFx"] = value;
+	// c1["ANr"].value = value;
+}
+
+
+jQuery("#Slider3").slider({ 
+    from: 0, to: 400, 
+    scale: [0, '|', 80, '|', '160', '|', 240, '|', 320, '|', 400], 
+    limits: false, 
+    step: 1, 
+    onstatechange: function(value) {
+    	sliderChanged(value);
+    }
+});

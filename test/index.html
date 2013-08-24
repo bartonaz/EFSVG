@@ -4,8 +4,8 @@
         <style type="text/css"> 
 
             #svgContainer {
-                width: 711px;
-                height: 400px;
+                width: 720px;
+                height: 405px;
                 border: 1px solid #aaa;
             }
 
@@ -15,7 +15,19 @@
                 stroke-dasharray: 5,5;
                 fill: #1dcb1e;
             }
+
+            div.layout-slider {
+                position: absolute;
+                left:750px;
+                top:20px;
+                /*display: inline-block;*/
+            }
         </style>
+
+        <!-- JQUERY SLIDER CSS -->
+        <link rel="stylesheet" href="../3party/jslider/css/jslider.css" type="text/css">
+        <link rel="stylesheet" href="../3party/jslider/css/jslider.plastic.css" type="text/css">
+
     </head>
     <body>
         <div id="svgContainer">
@@ -26,18 +38,33 @@
             
         </div>
 
+        <div class="layout-slider" style="width: 100%;">
+            <span style="display: inline-block; width: 400px; padding: 0 5px;">
+                <input id="Slider3" type="text" name="area" value="25" />
+            </span>
+        </div>
 
+
+        <!-- JQUERY SLIDER -->
+        <script type="text/javascript" src="../3party/jquery-2.0.3.js"></script>
+        <script type="text/javascript" src="../3party/jslider/js/jshashtable-2.1_src.js"></script>
+        <script type="text/javascript" src="../3party/jslider/js/jquery.numberformatter-1.2.3.js"></script>
+        <script type="text/javascript" src="../3party/jslider/js/tmpl.js"></script>
+        <script type="text/javascript" src="../3party/jslider/js/jquery.dependClass-0.1.js"></script>
+        <script type="text/javascript" src="../3party/jslider/js/draggable-0.1.js"></script>
+        <script type="text/javascript" src="../3party/jslider/js/jquery.slider.js"></script>
 
         <script type="text/javascript" src="../3party/GreenSock-JS/src/uncompressed/plugins/CSSPlugin.js"></script>
         <script type="text/javascript" src="../3party/GreenSock-JS/src/uncompressed/TweenLite.js"></script>
 
         <script type="text/javascript" src="../src/utils/gen.js"></script>
         <script type="text/javascript" src="../src/utils/dom.js"></script>
-            <script type="text/javascript" src="../src/utils.js"></script>
+        <script type="text/javascript" src="../src/utils.js"></script>
 
         <script type="text/javascript" src="../src/efsvg/main.js"></script>
-            <script type="text/javascript" src="../src/efsvg.js"></script>
+        <script type="text/javascript" src="../src/efsvg.js"></script>
 
         <script type="text/javascript" src="test1.js"></script>
+
     </body>
 </html>
