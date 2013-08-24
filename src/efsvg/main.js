@@ -87,18 +87,27 @@ EFSVG.Main = (function(doc, U){
      */
     var efProps = {
         // Geometry
-        "EFtype":"rect",            // Type of the element
-        "EFtag":"",                 // Tag of SVG element that should be used (If empty, object not yet completely initialized)
-        "EFx":10,                   // Array of X coordinates of each point (default: single value)
-        "EFy":0,                    // Array of Y coordinates of each point (default: single value)
-        "EFfactor":1,               // Factor of attraction of each point (1-straight lines, <1-arcs)
-        "EFxO":0,                   // X coordinate of the origin point (from which the sector to both ends of the curve is drawn)
-        "EFyO":0,                   // Y coordinate of the origin point (from which the sector to both ends of the cruve is drawn)
-        "EFsector":false,           // Whether the sector from the origin to both ends of the line should be drawn
-        "EFstart":0,                // Point of the start of the shape drawing
-        "EFend":1,                  // Point of the end of the shape drawing
-        "EFtoShape":{},             // Shape to which the shape transformation should progress
-        "EFtoProgress":0            // Progress of the shape transformation
+        "EFtype":"rect",            // Type of the element (Not animatable)
+        "EFtag":"",                 // Tag of SVG element that should be used (If empty, object not yet completely initialized) (Not animatable)
+        "EFx":10,                   // Array of X coordinates of each point (default: single value) (Animatable if a single value)
+        "EFy":0,                    // Array of Y coordinates of each point (default: single value) (Animatable if a single value)
+        "EFfactor":1,               // Factor of attraction of each point (1-straight lines, <1-arcs) (Animatable)
+        "EFxO":0,                   // X coordinate of the origin point (from which the sector to both ends of the curve is drawn) (Animatable)
+        "EFyO":0,                   // Y coordinate of the origin point (from which the sector to both ends of the cruve is drawn) (Animatable)
+        "EFsector":false,           // Whether the sector from the origin to both ends of the line should be drawn (Not animatable)
+        "EFstart":0,                // Point of the start of the shape drawing (Animatable)
+        "EFend":1,                  // Point of the end of the shape drawing (Animatable)
+        "EFtoShape":{},             // Shape to which the shape transformation should progress (Not animatable)
+        "EFtoProgress":0,           // Progress of the shape transformation (Animatable)
+        "EFstroke":"#000",          // Colour of the stroke line (Animatable)
+        "EFstroke-opacity":"1",     // Opacity of the stroke line (Animatable)
+        "EFstroke-width":"1",       // Width of the stroke line (Animatable)
+        "EFstroke-dasharray":"",    // Dash-array (Not animatable)
+        "EFstroke-dashoffset":"",   // Dash-offset (Animatable)
+        "EFstroke-linecap":"",      // Shape of line endings (Not animatable)
+        "EFstroke-linejoin":"",     // Shape of line joinings (Not animatable)
+        "EFfill":"",                // Colour of the fill (or name of the <use> gradient object) (Animatable if colour)
+        "EFfill-opacity":"1",       // Opacity of the fill colour (Animatable)
     };
 
     /**
@@ -106,14 +115,16 @@ EFSVG.Main = (function(doc, U){
      * @property {Array} svgAttrAvailMap
      */
     var svgAttrAvailMap = [
-        [0,0,0,0,0,0,0,0,0, 1,1,1,1,0,0,0, 1,0, 1,1,1,1,1,1,0,0, 1,1],          // LINE
-        [0,0,0,0,0,0,0,0,0, 0,0,0,0,0,1,0, 1,0, 1,1,1,1,1,1,1,1, 1,1],          // PATH
-        [0,1,1,0,0,1,1,1,1, 0,0,0,0,0,0,0, 1,0, 1,1,1,1,1,1,1,1, 1,1],          // RECT
-        [0,1,1,1,1,0,0,0,0, 0,0,0,0,0,0,0, 1,0, 1,1,1,1,1,1,1,1, 1,1],          // ELLIPSE
-        [1,0,0,1,1,0,0,0,0, 0,0,0,0,0,0,0, 1,0, 1,1,1,1,1,1,1,1, 1,1],          // CIRCLE
-        [0,0,0,0,0,1,1,0,0, 0,0,0,0,0,0,1, 1,0, 1,1,1,1,1,1,1,1, 1,1],          // TEXT
-        [0,0,0,0,0,1,1,0,0, 0,0,0,0,0,0,1, 1,1, 1,1,1,1,1,1,1,1, 1,1],          // TEXTPATH
-        [0,0,0,0,0,1,1,1,1, 0,0,0,0,0,0,0, 1,1, 0,0,0,0,0,0,0,0, 1,1]           // IMAGE
+        [0,0,0,0,0,0,0,0,0, 1,1,1,1,0,0,0, 1,0, 1,1,1,1,1,1,1,0,0, 1,1],          // LINE
+        [0,0,0,0,0,0,0,0,0, 0,0,0,0,0,1,0, 1,0, 1,1,1,1,1,1,1,1,1, 1,1],          // PATH
+        [0,1,1,0,0,1,1,1,1, 0,0,0,0,0,0,0, 1,0, 1,1,1,1,1,1,1,1,1, 1,1],          // RECT
+        [0,1,1,1,1,0,0,0,0, 0,0,0,0,0,0,0, 1,0, 1,1,1,1,1,1,1,1,1, 1,1],          // ELLIPSE
+        [1,0,0,1,1,0,0,0,0, 0,0,0,0,0,0,0, 1,0, 1,1,1,1,1,1,1,1,1, 1,1],          // CIRCLE
+        [0,0,0,0,0,1,1,0,0, 0,0,0,0,0,0,1, 1,0, 1,1,1,1,1,0,1,1,1, 1,1],          // TEXT
+        [0,0,0,0,0,1,1,0,0, 0,0,0,0,0,0,1, 1,1, 1,1,1,1,1,0,1,1,1, 1,1],          // TEXTPATH
+        [0,0,0,0,0,1,1,1,1, 0,0,0,0,0,0,0, 1,1, 0,0,0,0,0,0,0,0,0, 1,1],          // IMAGE
+        [0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0, 0,0, 0,0,0,0,0,0,0,0,0, 0,0]           // LINEAR GRADIENT
+        [0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0, 0,0, 0,0,0,0,0,0,0,0,0, 0,0]           // RADIAL GRADIENT
     ];
 
     /**
@@ -148,6 +159,7 @@ EFSVG.Main = (function(doc, U){
         "stroke-dasharray",
         "stroke-dashoffset",
         "stroke-linecap",
+        "stroke-linejoin",
         "stroke-opacity",
         "fill",
         "fill-opacity",
@@ -199,10 +211,6 @@ EFSVG.Main = (function(doc, U){
         el = updateTagEl(el);
         el[E.efName]["EFtag"] = el.tagName;
         setSVGAttributes(el);
-
-        // el["ANstroke-width"].value = 2;
-        // el["ANstroke"].value = "#2b562c";
-        // el["ANfill"].value = "#1dcb1e";
         
         return el;      
     };
