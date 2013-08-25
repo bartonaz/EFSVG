@@ -59,7 +59,7 @@ c1.id = "c1";
 svg.appendChild(c1);
 
 var sliderChanged = function(value) {
-	c1["EFx"] = value;
+	c1["EFopacity"] = value;
 	// c1["ANr"].value = value;
 	// c1.r = value;
 }

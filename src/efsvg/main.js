@@ -108,6 +108,7 @@ EFSVG.Main = (function(doc, U){
         "EFstroke-linejoin":"",     // Shape of line joinings (Not animatable)
         "EFfill":"",                // Colour of the fill (or name of the <use> gradient object) (Animatable if colour)
         "EFfill-opacity":"1",       // Opacity of the fill colour (Animatable)
+        "EFopacity":"1",            // Opacity of the whole element (Animatable)
     };
 
     /**
@@ -296,7 +297,7 @@ EFSVG.Main = (function(doc, U){
             U.Gen.forEachIn(allEFproperties, function (propName) {
                 propDefinitions[propName] = {
                     get: function () {return this[E.efName][propName]; },
-                    set: function (value) { propTrigger(el, propName, value); }
+                    set: function (value) { if (propTrigger(el, propName, value)) this[E.efName][propName] = value; }
                 }
             });
             if (E.log) console.log("[setPropsEF] Setting the list of properties: "+Object.keys(propDefinitions));
@@ -388,18 +389,30 @@ EFSVG.Main = (function(doc, U){
         if (E.log) console.log("[propTrigger] Triggered change of property <"+name+"> with value <"+value+"> in element: "+el);
         var pObj = el[E.efName];
         if(!pObj) {
-            if(E.log) console.log("[propTrigger] No EF properties found in object of tag: "+el["tagName"])
+            if(E.log) console.log("[propTrigger] No EF properties found in object of tag: "+el["tagName"]);
+            return false;
         }
+        // Stopping if object is not yet full initialized
+        if (! pObj["EFtag"]) return true;
+        // Setting value directly to the attribute node if this is a styling property
+        var subName = name.substring(2,8);
+        if(E.log) console.log("[propTrigger]   subName: "+subName);
+        if (subName === "stroke" || subName === "fill" || subName === "opacit") {
+            var nodeName = name.substring(2);
+            el["AN"+nodeName].value = value;
+            return true;
+        }
+        
         // Performing further checks if object is completely initialized
-        if (pObj["EFtag"]) {
-            if(E.log) console.log("[propTrigger]   Doing additional work...");
-            switch(name) {
-                case "EFx":
-                    el["ANr"]["value"] = value;
-                    break;
-            }
+        if (E.log) console.log("[propTrigger]   Doing additional work...");
+
+        switch(name) {
+            case "EFx":
+                el["ANr"]["value"] = value;
+                break;
         }
-        pObj[name] = value;
+
+        return true;
     };
 
 //------------------------------------------------------------------------------------------------------------------------------
