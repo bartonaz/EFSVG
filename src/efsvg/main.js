@@ -56,6 +56,20 @@ EFSVG.Main = (function(doc, U){
         efName: "EFSVG",
 
         /**
+         * Prefix added to the names of the attribute nodes
+         * @property {String} nodePrefix
+         * @public
+         */
+        nodePrefix: "AN",
+
+        /**
+         * Prefix added to the names of the EFSVG properties
+         * @property {String} propPrefix
+         * @public
+         */
+        propPrefix: "EF",
+
+        /**
          * Flag to toggle debug logging
          * @property {Boolean} log
          * @public
@@ -87,28 +101,30 @@ EFSVG.Main = (function(doc, U){
      */
     var efProps = {
         // Geometry
-        "EFtype":"rect",            // Type of the element (Not animatable)
-        "EFtag":"",                 // Tag of SVG element that should be used (If empty, object not yet completely initialized) (Not animatable)
-        "EFx":10,                   // Array of X coordinates of each point (default: single value) (Animatable if a single value)
-        "EFy":0,                    // Array of Y coordinates of each point (default: single value) (Animatable if a single value)
-        "EFfactor":1,               // Factor of attraction of each point (1-straight lines, <1-arcs) (Animatable)
-        "EFxO":0,                   // X coordinate of the origin point (from which the sector to both ends of the curve is drawn) (Animatable)
-        "EFyO":0,                   // Y coordinate of the origin point (from which the sector to both ends of the cruve is drawn) (Animatable)
-        "EFsector":false,           // Whether the sector from the origin to both ends of the line should be drawn (Not animatable)
-        "EFstart":0,                // Point of the start of the shape drawing (Animatable)
-        "EFend":1,                  // Point of the end of the shape drawing (Animatable)
-        "EFtoShape":{},             // Shape to which the shape transformation should progress (Not animatable)
-        "EFtoProgress":0,           // Progress of the shape transformation (Animatable)
-        "EFstroke":"#000",          // Colour of the stroke line (Animatable)
-        "EFstroke-opacity":"1",     // Opacity of the stroke line (Animatable)
-        "EFstroke-width":"1",       // Width of the stroke line (Animatable)
-        "EFstroke-dasharray":"",    // Dash-array (Not animatable)
-        "EFstroke-dashoffset":"",   // Dash-offset (Animatable)
-        "EFstroke-linecap":"",      // Shape of line endings (Not animatable)
-        "EFstroke-linejoin":"",     // Shape of line joinings (Not animatable)
-        "EFfill":"",                // Colour of the fill (or name of the <use> gradient object) (Animatable if colour)
-        "EFfill-opacity":"1",       // Opacity of the fill colour (Animatable)
-        "EFopacity":"1",            // Opacity of the whole element (Animatable)
+        "type":"rect",            // Type of the element (Not animatable)
+        "tag":"",                 // Tag of SVG element that should be used (If empty, object not yet completely initialized) (Not animatable)
+        "x":20,                   // Array of X coordinates of each point (default: single value) (Animatable if a single value)
+        "y":10,                   // Array of Y coordinates of each point (default: single value) (Animatable if a single value)
+        "factor":1,               // Factor of attraction of each point (1-straight lines, <1-arcs) (Animatable)
+        "xO":0,                   // X coordinate of the origin point (from which the sector to both ends of the curve is drawn) (Animatable)
+        "yO":0,                   // Y coordinate of the origin point (from which the sector to both ends of the cruve is drawn) (Animatable)
+        "sector":false,           // Whether the sector from the origin to both ends of the line should be drawn (Not animatable)
+        "start":0,                // Point of the start of the shape drawing (Animatable)
+        "end":1,                  // Point of the end of the shape drawing (Animatable)
+        "toShape":{},             // Shape to which the shape transformation should progress (Not animatable)
+        "toProgress":0,           // Progress of the shape transformation (Animatable)
+        "stroke":"#000",          // Colour of the stroke line (Animatable)
+        "stroke-opacity":"1",     // Opacity of the stroke line (Animatable)
+        "stroke-width":"1",       // Width of the stroke line (Animatable)
+        "stroke-dasharray":"",    // Dash-array (Not animatable)
+        "stroke-dashoffset":"",   // Dash-offset (Animatable)
+        "stroke-linecap":"",      // Shape of line endings (Not animatable)
+        "stroke-linejoin":"",     // Shape of line joinings (Not animatable)
+        "stroke-offset":0,        // Offset of the stroke line (Animatable)
+        "fill":"",                // Colour of the fill (or name of the <use> gradient object) (Animatable if colour)
+        "fill-opacity":"1",       // Opacity of the fill colour (Animatable)
+        "opacity":"1",            // Opacity of the whole element (Animatable)
+        "id":""                   // Id of the element
     };
 
     /**
@@ -181,36 +197,46 @@ EFSVG.Main = (function(doc, U){
      * @return {Object} DOM element with added EF properties
      * @public
      */
-    function el(input) {
+    function el(input, id) {
         // Setting type and properties of the object that will be created
         var type = "";
         var props = {};
         var tag = "";
+        var elId = "";
         // Getting type if only type was provided to initializer
         if (typeof input === "string") {
             type = input.toLowerCase();
             tag = type;
-            props["EFtype"] = type;
+            props.type = type;
 
+            if (!id) {
+                if(E.log) console.warn("No id given for the EFSVG element of type: "+type);
+                return undefined;
+            }
+            props.id = id;
         } 
         // Getting type from the input object and setting additional provided properties
         else if (typeof input === "object") {
             // Creating the simple object first if the object passed to initializer
             props = input;
-            type = props["EFtype"];
-            tag = props["EFtag"];
-            // props["EFtag"] = "";
+            type = props.type;
+            tag = props.tag;
+            if (!props.id) {
+                if(E.log) console.warn("No id given for the EFSVG element of type: "+type);
+                return undefined;
+            }
         } else {
             if (E.log) console.warn("[el] Wrong input in el(): '"+input+"'");
             return;
         }
         if (!isTypeEFcorrect(type)) return;
         var el = U.Dom.createDomEl(tag, E.svgNS);
+        el.id = props.id;
         el[E.efName] = {};        // Setting object that will contain real values of all the properties
 
         setPropsEF(el,props);
         el = updateTagEl(el);
-        el[E.efName]["EFtag"] = el.tagName;
+        el[E.efName].tag = el.tagName;
         setSVGAttributes(el);
         
         return el;      
@@ -228,24 +254,32 @@ EFSVG.Main = (function(doc, U){
      */
     function tagId(el) {
         var tagNames = svgTypes;
+        var pObj = el[E.efName];
         var tagId = -1;
-        if (!el.hasOwnProperty("EFtype")) {
+        if (!el.hasOwnProperty(E.propPrefix+"type")) {
             if (E.log) console.warn("[tagId] Object has no <type> property assigned. Is it EFSVG object?");
         }
-        // Deciding on the SVG type to be used
-        switch(el["EFtype"]) {
+        // Deciding on the SVG tag to be used
+        // If a fragment of the shape has to be drawn
+        // if (el[])
+        // If simple shape has to be drawn
+        switch(el[E.propPrefix+"type"]) {
             case "rect": 
                 tagId = 2;      // rect
                 break;
             case "ellipse": 
-                tagId = 4;      // ellipse
+                tagId = 3;      // ellipse
+                if (pObj["y"] < 0) {
+                    tagId = 4;  // circle
+                    break;
+                }
                 break;
             case "line":
                 tagId = 1;      // path
                 break;
         }
         if (tagId>=0) return tagId;
-        if (E.log) console.warn("[tagId] Failed to identify SVG type <tagName> for object: "+el.toString() + " of type: "+el["EFtype"]);
+        if (E.log) console.warn("[tagId] Failed to identify SVG type <tagName> for object: "+el.toString() + " of type: "+el[E.propPrefix+"type"]);
     };
 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -259,7 +293,7 @@ EFSVG.Main = (function(doc, U){
     function tagName(el) {
         var tagId_ = tagId(el);
         if (tagId_<0 || tagId_>svgTypes.length) {
-            if (E.log) console.warn("[tagName] Wrong tagId in <tagName> function: "+tagId_+" for object of type: "+el["EFtype"]);
+            if (E.log) console.warn("[tagName] Wrong tagId in <tagName> function: "+tagId_+" for object of type: "+el[E.propPrefix+"type"]);
             return null;
         }
         return svgTypes[tagId_];
@@ -295,7 +329,7 @@ EFSVG.Main = (function(doc, U){
             // Creating object with all property definitions
             var propDefinitions = {};
             U.Gen.forEachIn(allEFproperties, function (propName) {
-                propDefinitions[propName] = {
+                propDefinitions[E.propPrefix+propName] = {
                     get: function () {return this[E.efName][propName]; },
                     set: function (value) { if (propTrigger(el, propName, value)) this[E.efName][propName] = value; }
                 }
@@ -313,14 +347,14 @@ EFSVG.Main = (function(doc, U){
         for (var propName in props) {
             // Skipping icompatible properties
             if (!allEFproperties.hasOwnProperty(propName)) {
-                if (E.log) console.warn("[setPropsEF] Wrong property name '"+propName+"' for object of type '"+pObj["EFtype"]+"'");
+                if (E.log) console.warn("[setPropsEF] Wrong property name '"+propName+"' for object of type '"+pObj["type"]+"'");
                 continue;
             }
             // Skipping EFtag
-            if(propName === "EFtag") continue;
+            if(propName === "tag") continue;
             // Setting the value
             console.log("[setPropsEF] Set property <"+propName+"> to value: "+props[propName]);
-            el[propName] = props[propName];
+            el[E.propPrefix+propName] = props[propName];
         }
     };
 
@@ -335,7 +369,7 @@ EFSVG.Main = (function(doc, U){
         if (!el) return;
         var props = efProps;
         for (var key in props) {
-            props[key] = el[key];
+            props[key] = el[E.propPrefix+key];
         }
         return props;
     };
@@ -349,7 +383,7 @@ EFSVG.Main = (function(doc, U){
      */
     function updateTagEl(el) {
         var pObj = el[E.efName];
-        if (!pObj.hasOwnProperty("EFtype")) {
+        if (!pObj.hasOwnProperty("type")) {
             if (E.log) console.warn("[updateTagEl] Trying to update SVG type of the object of undefined type: "+el.toString());
         }
         var tagName_0 = el["tagName"];
@@ -358,12 +392,14 @@ EFSVG.Main = (function(doc, U){
         
         // Replacing the SVG element by the new one with the same visual representation
         if (E.log) console.log("[updateTagEl] Updating SVG element from <"+tagName_0+"> to <"+tagName_1+">");
-        pObj["EFtag"] = tagName_1;      // Updating the tag value
+        pObj.tag = tagName_1;      // Updating the tag value
         var newEl = E.el(pObj);
 
+        el.id = "";
         U.Dom.replaceDomEl(el, newEl);      // Replacing the DOM element
+        el = newEl;
 
-        return newEl;
+        return el;
     };
 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -375,7 +411,7 @@ EFSVG.Main = (function(doc, U){
      */
     function setEFAccessor(el, prop) {
         if (ut.typeOf(el[prop]) === "object") return;        // Skipping properties that are not simple values
-        if (E.log) console.log("[setEFAccessor] Setting accessor <"+prop+"> to the EF object with type: <"+el["EFtype"]+">");
+        if (E.log) console.log("[setEFAccessor] Setting accessor <"+prop+"> to the EF object with type: <"+el[E.propPrefix+"type"]+">");
     };
 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -389,27 +425,26 @@ EFSVG.Main = (function(doc, U){
         if (E.log) console.log("[propTrigger] Triggered change of property <"+name+"> with value <"+value+"> in element: "+el);
         var pObj = el[E.efName];
         if(!pObj) {
-            if(E.log) console.log("[propTrigger] No EF properties found in object of tag: "+el["tagName"]);
+            if(E.log) console.log("[propTrigger] No EF properties found in object of tag: "+el.tagName);
             return false;
         }
-        // Stopping if object is not yet full initialized
-        if (! pObj["EFtag"]) return true;
+        // Stopping if object is not yet fully initialized
+        if (! pObj.tag) return true;
         // Setting value directly to the attribute node if this is a styling property
-        var subName = name.substring(2,8);
-        if(E.log) console.log("[propTrigger]   subName: "+subName);
-        if (subName === "stroke" || subName === "fill" || subName === "opacit") {
-            var nodeName = name.substring(2);
-            el["AN"+nodeName].value = value;
+        var subName = name.substring(0,6);
+        if (subName === "stroke" || subName === "fill" || subName === "opacit" || subName === "id") {
+            el[E.nodePrefix+name].value = value;
             return true;
         }
         
         // Performing further checks if object is completely initialized
         if (E.log) console.log("[propTrigger]   Doing additional work...");
 
-        switch(name) {
-            case "EFx":
-                el["ANr"]["value"] = value;
-                break;
+        if (pObj.type === "ellipse") {
+            if (name === "y" || name === "x") {
+                pObj[name] = value;
+                el = updateTagEl(el);
+            }
         }
 
         return true;
@@ -428,7 +463,7 @@ EFSVG.Main = (function(doc, U){
         var id = svgAttrAll.length-1;
         do {
             var attrName = svgAttrAll[id];
-            var attrNodeName = "AN"+attrName;       // AttributeNode<node name>
+            var attrNodeName = E.nodePrefix+attrName;       // AttributeNode<node name>
 
             if (!attributes[id]) {
                 // Removing the attribute if it is obsolete for the current type

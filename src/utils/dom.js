@@ -48,10 +48,22 @@ JSUTILS.Dom = (function (J,doc) {
             if (U.log) console.warn("[replaceDomEl] One of the elements is not an Object");
             return false;
         }
+        console.log("Replacing element:");
+        console.dir(el1);
+        console.log("       by element:");
+        console.dir(el2);
         var parent = el1.parentNode;
+        console.log("Parent:");
+        console.dir(parent);
         if(!parent) return;     // Stopping if the initial element is not in the document
 
-        parent.replaceChild(el1, el2);      // Replacing the element in the DOM structure
+        parent.replaceChild(el2, el1);      // Replacing the element in the DOM structure
+
+        console.log("New parent:");
+        console.dir(parent);
+
+        el1 = el2;
+
         return true;
     };
 

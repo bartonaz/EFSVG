@@ -1,6 +1,6 @@
 EFSVG.log = true;
 var svg = document.getElementById("svg");
-var c1 = EFSVG.el("ellipse");
+var c1 = EFSVG.el("ellipse","c1");
 
 var c0 = document.getElementById("c0");
 
@@ -39,27 +39,18 @@ Object.defineProperty(c0, "Val2",{
 
 console.log(Object.keys(c1))
 
-// svg.appendChild(c1);
-
-var c2 = {c: 10, d: 20};
-Object.defineProperties(c2,{
-	"a": {
-		get: function () {return this.c; },
-		set: function (value) {this.c = value; }
-	},
-	"b": {
-		get: function () {return this.d; },
-		set: function (value) {console.log("Setting the option to value: "+value); this.d = value; }
-	}
-});
 
 c1.EFx = 250;
+// c1.EFy = -1;
 c1.id = "c1";
 
 svg.appendChild(c1);
 
+// var c2 = EFSVG.el("rect");
+
+
 var sliderChanged = function(value) {
-	c1["EFopacity"] = value;
+	c1["EFstroke-width"] = value;
 	// c1["ANr"].value = value;
 	// c1.r = value;
 }
@@ -74,3 +65,4 @@ jQuery("#Slider3").slider({
     	sliderChanged(value);
     }
 });
+
